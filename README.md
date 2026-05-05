@@ -50,9 +50,9 @@ See `docker-compose.yaml` for complete list of configurable options.
 
 ## 📂 Volumes
 
-- `./rootfs/data/vikunja` - Data storage
-- `./rootfs/config/vikunja` - Data storage
-- `./rootfs/data/db/postgres/vikunja` - Data storage
+- `./volumes/data/vikunja` - Data storage
+- `./volumes/config/vikunja` - Data storage
+- `./volumes/data/db/postgres/vikunja` - Data storage
 
 ## 🔐 Security
 
