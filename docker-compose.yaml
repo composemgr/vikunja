@@ -25,8 +25,8 @@ services:
       TZ: ${TZ:-America/New_York}
       CONTAINER_NAME: vikunja-app
       HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
-      VIKUNJA_SERVICE_JWTSECRET: ${APP_SECRET_KEY:-changeme_secret_key_min_32_chars}
-      VIKUNJA_SERVICE_FRONTENDURL: http://${BASE_HOST_NAME:-$HOSTNAME}:3456
+      VIKUNJA_SERVICE_SECRET: ${APP_SECRET_KEY:-changeme_secret_key_min_32_chars}
+      VIKUNJA_SERVICE_PUBLICURL: http://${BASE_HOST_NAME:-$HOSTNAME}:3456
       VIKUNJA_DATABASE_TYPE: postgres
       VIKUNJA_DATABASE_HOST: vikunja-db
       VIKUNJA_DATABASE_DATABASE: ${DB_CREATE_DATABASE_NAME:-vikunja}
