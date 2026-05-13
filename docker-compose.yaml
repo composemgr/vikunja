@@ -17,10 +17,14 @@ services:
     logging: *default-logging
     networks:
       - vikunja
+      - proxy
+      - cloudflare
     ports:
       - "172.17.0.1:3456:3456"
     environment:
       TZ: ${TZ:-America/New_York}
+      CONTAINER_NAME: vikunja-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
       VIKUNJA_SERVICE_JWTSECRET: ${APP_SECRET_KEY:-changeme_secret_key_min_32_chars}
       VIKUNJA_SERVICE_FRONTENDURL: http://${BASE_HOST_NAME:-$HOSTNAME}:3456
       VIKUNJA_DATABASE_TYPE: postgres
@@ -41,6 +45,22 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    labels:
+      - 'traefik.enable=true'
+      - 'cloudflare.enable=true'
+      - 'traefik.docker.network=proxy'
+      - 'cloudflare.service=http://vikunja-app:3456'
+      - 'cloudflare.hostname=vikunja.${CLOUDFLARE_ZONE_NAME:-}'
+      - 'traefik.http.routers.vikunja-app.entrypoints=http'
+      - 'traefik.http.routers.vikunja-app-secure.tls=true'
+      - 'traefik.http.routers.vikunja-app.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.middlewares.vikunja-app-https-redirect.redirectscheme.scheme=https'
+      - 'traefik.http.routers.vikunja-app.middlewares=vikunja-app-https-redirect'
+      - 'traefik.http.routers.vikunja-app-secure.entrypoints=https'
+      - 'traefik.http.routers.vikunja-app-secure.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.routers.vikunja-app-secure.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.vikunja-app-secure.service=vikunja-app'
+      - 'traefik.http.services.vikunja-app.loadbalancer.server.port=3456'
 
   vikunja-db:
     image: postgres:latest
@@ -52,6 +72,7 @@ services:
       - vikunja
     environment:
       TZ: ${TZ:-America/New_York}
+      CONTAINER_NAME: vikunja-db
       POSTGRES_DB: ${DB_CREATE_DATABASE_NAME:-vikunja}
       POSTGRES_USER: ${DB_USER_NAME:-vikunja}
       POSTGRES_PASSWORD: ${DB_USER_PASS:-changeme_db_password}
@@ -67,3 +88,7 @@ networks:
   vikunja:
     name: vikunja
     external: false
+  proxy:
+    external: true
+  cloudflare:
+    external: true
